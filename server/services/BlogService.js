@@ -3,11 +3,11 @@ const Schema = mongoose.Schema
 const ObjectId = Schema.Types.ObjectId
 
 const _model = new Schema({
-    title: { type: String, required: true, maxlength: 60 },
-    summary: { type: String, required: true, maxlength: 120 },
-    authorId: { type: ObjectId, ref: 'User', required: true },
-    img: { type: String, required: true, default: "https://placehold.it" },
-    body: { type: String, required: true }
+    title: { type: String, maxlength: 60 },
+    summary: { type: String, maxlength: 120 },
+    author: { type: ObjectId, ref: 'User' },
+    img: { type: String, default: "https://placehold.it" },
+    body: { type: String }
 }, { timestamps: true })
 
 

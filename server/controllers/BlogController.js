@@ -1,8 +1,10 @@
 import express from 'express'
 import BlogService from '../services/BlogService';
 import { Authorize } from '../middleware/authorize.js'
+import CommentService from '../services/CommentService';
 
 let _blogService = new BlogService().repository
+let _commentService = new CommentService().repository
 
 export default class BlogController {
     constructor() {
@@ -14,9 +16,10 @@ export default class BlogController {
             //      Edit a blog*
             //      Delete a blog*
             //NOTE all routes after the authenticate method will require the user to be logged in to access
-            .use(Authorize.authenticated)
             .get('', this.getAll)
             .get('/:id', this.getById)
+            .get('/:id/comments', this.getComments)
+            .use(Authorize.authenticated)
             .post('', this.create)
             .put('/:id', this.edit)
             .delete('/:id', this.delete)
@@ -26,7 +29,7 @@ export default class BlogController {
 
     async getAll(req, res, next) {
         try {
-            let data = await _blogService.find({})
+            let data = await _blogService.find({}).populate('authorId', 'name')
             return res.send(data)
         } catch (error) { next(error) }
 
@@ -35,12 +38,22 @@ export default class BlogController {
     async getById(req, res, next) {
         try {
             let data = await _blogService.findById(req.params.id)
+
             if (!data) {
                 throw new Error("Invalid Id")
             }
             res.send(data)
         } catch (error) { next(error) }
     }
+
+    async getComments(req, res, next) {
+        try {
+            let data = await _commentService.find({ blog: req.params.id }).populate("blog", "name")
+
+            return res.send(data)
+        } catch (error) { next(error) }
+    }
+
 
     async create(req, res, next) {
         try {
